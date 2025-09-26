@@ -1,26 +1,23 @@
-from flask import Flask, request, make_response, jsonify
-from flask_cors import CORS
-from flask_migrate import Migrate
+from flask import Flask
+from server.models import db
 
-from models import db, Message
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.json.compact = False
+def create_app():
+    app = Flask(__name__)
 
-CORS(app)
-migrate = Migrate(app, db)
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db.init_app(app)
+    db.init_app(app)
 
-@app.route('/messages')
-def messages():
-    return ''
+    with app.app_context():
+        db.create_all()
 
-@app.route('/messages/<int:id>')
-def messages_by_id(id):
-    return ''
+    return app
 
-if __name__ == '__main__':
-    app.run(port=5555)
+
+# expose app so tests can import it
+app = create_app()
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
